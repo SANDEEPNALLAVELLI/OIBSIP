@@ -1,0 +1,93 @@
+# import the libraries and modules
+import speech_recognition as sr
+import pyttsx3
+import pyaudio
+import wikipedia
+import webbrowser
+
+# initialize the speech recognition and text-to-speech objects
+recognizer = sr.Recognizer()
+speaker = pyttsx3.init()
+
+# define a function to listen and recognize the user's voice input
+def listen():
+    # use the microphone as the audio source
+    with sr.Microphone() as source:
+        # adjust for ambient noise
+        recognizer.adjust_for_ambient_noise(source)
+        # listen for the user's speech
+        print("Listening...")
+        audio = recognizer.listen(source)
+    try:
+        # recognize the speech using Google Speech Recognition
+        print("Recognizing...")
+        query = recognizer.recognize_google(audio)
+        # print the query
+        print(f"User said: {query}")
+    except:
+        # handle any errors
+        print("Sorry, I did not understand that.")
+        query = None
+    # return the query
+    return query
+
+# define a function to speak the assistant's response output
+def speak(response):
+    # print the response
+    print(f"Assistant said: {response}")
+    # say the response using pyttsx3
+    speaker.say(response)
+    speaker.runAndWait()
+
+# define a function to process the user's query and perform the appropriate task
+def process(query):
+    # check if the query is valid
+    if query:
+        # check if the query contains "wikipedia"
+        if "wikipedia" in query.lower():
+            # remove "wikipedia" from the query
+            query = query.replace("wikipedia", "")
+            # get a summary from wikipedia
+            summary = wikipedia.summary(query, sentences=2)
+            # speak the summary
+            speak(summary)
+        # check if the query contains "youtube"
+        elif "youtube" in query.lower():
+            # remove "youtube" from the query
+            query = query.replace("youtube", "")
+            # create a URL for youtube search
+            url = "https://www.youtube.com/results?search_query=" + query
+            # open the URL in web browser
+            webbrowser.open(url)
+            # speak a confirmation message
+            speak(f"Here are some videos on {query} from youtube.")
+        # check if the query contains "google"
+        elif "google" in query.lower():
+            # remove "google" from the query
+            query = query.replace("google", "")
+            # create a URL for google search
+            url = "https://www.google.com/search?q=" + query
+            # open the URL in web browser
+            webbrowser.open(url)
+            # speak a confirmation message
+            speak(f"Here are some results on {query} from google.")
+        # check if the query contains "bye"
+        elif "bye" in query.lower():
+            # speak a goodbye message
+            speak("Bye, have a nice day.")
+            # exit the program
+            exit()
+        else:
+            # speak a default message
+            speak("Sorry, I cannot do that yet.")
+    else:
+        # speak a default message
+        speak("Please say something.")
+
+# create a main loop to run the voice assistant
+while True:
+    # listen and recognize the user's voice input
+    query = listen()
+    # process the user's query and perform the appropriate task
+    process(query)
+    
